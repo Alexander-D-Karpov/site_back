@@ -295,11 +295,12 @@ SOCIALACCOUNT_ADAPTER = "site_back.users.adapters.SocialAccountAdapter"
 # -------------------------------------------------------------------------------
 # django-rest-framework - https://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
-        "rest_framework.authentication.TokenAuthentication",
+    'EXCEPTION_HANDLER': 'site_back.api.exception_handlers.drf_default_with_modifications_exception_handler',
+    # 'EXCEPTION_HANDLER': 'styleguide_example.api.exception_handlers.hacksoft_proposed_exception_handler',
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    'DEFAULT_AUTHENTICATION_CLASSES': []
 }
 
 # django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup
