@@ -1,22 +1,35 @@
-from django.contrib.auth.models import AbstractUser
-from django.db.models import CharField
-from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
+from django.db import models
+from django.contrib.auth.models import (
+    PermissionsMixin,
+    AbstractBaseUser
+)
+from .objects import BaseUserManager
+from site_back.common.models import BaseModel
 
 
-class User(AbstractUser):
-    """Default user for site_back."""
+class User(BaseModel, AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(
+        verbose_name="username",
+        max_length=50,
+        unique=True,
+        blank=False,
+    )
+    email = models.EmailField(
+        verbose_name='email address',
+        max_length=255,
+        unique=True,
+        blank=False,
+    )
 
-    #: First and last name do not cover name patterns around the globe
-    name = CharField(_("Name of User"), blank=True, max_length=255)
-    first_name = None  # type: ignore
-    last_name = None  # type: ignore
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
 
-    def get_absolute_url(self):
-        """Get url for user's detail view.
+    objects = BaseUserManager()
 
-        Returns:
-            str: URL for user detail.
+    USERNAME_FIELD = 'email'
 
-        """
-        return reverse("users:detail", kwargs={"username": self.username})
+    def __str__(self):
+        return self.email
+
+    def is_staff(self):
+        return self.is_admin

@@ -1,34 +1,27 @@
-from django.contrib import admin
-from django.contrib.auth import admin as auth_admin
-from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy as _
+from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
 
-from site_back.users.forms import UserChangeForm, UserCreationForm
-
-User = get_user_model()
+from site_back.users.models import User
+from site_back.users.services import user_create
 
 
 @admin.register(User)
-class UserAdmin(auth_admin.UserAdmin):
+class BaseUserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'email', 'is_admin', 'is_superuser', 'is_active', 'created_at', 'updated_at')
 
-    form = UserChangeForm
-    add_form = UserCreationForm
+    search_fields = ('email', 'username',)
+
+    list_filter = ('is_active', 'is_admin', 'is_superuser')
+
     fieldsets = (
-        (None, {"fields": ("username", "password")}),
-        (_("Personal info"), {"fields": ("name", "email")}),
-        (
-            _("Permissions"),
-            {
-                "fields": (
-                    "is_active",
-                    "is_staff",
-                    "is_superuser",
-                    "groups",
-                    "user_permissions",
-                ),
-            },
-        ),
-        (_("Important dates"), {"fields": ("last_login", "date_joined")}),
+        (None, {'fields': ('email', 'username')}),
     )
-    list_display = ["username", "name", "is_superuser"]
-    search_fields = ["name"]
+
+    def save_model(self, request, obj, form, change):
+        if change:
+            return super().save_model(request, obj, form, change)
+
+        try:
+            user_create(**form.cleaned_data)
+        except ValidationError as exc:
+            self.message_user(request, str(exc), messages.ERROR)
