@@ -4,12 +4,12 @@ from site_back.users.models import User
 
 
 def user_create(*,
-    username: str,
-    email: str,
-    is_active: bool = True,
-    is_admin: bool = False,
-    password: Optional[str] = None
-) -> User:
+                username: str,
+                email: str,
+                is_active: bool = True,
+                is_admin: bool = False,
+                password: Optional[str] = None
+                ) -> User:
     user = User.objects.create_user(
         username=username,
         email=email,
